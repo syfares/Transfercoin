@@ -69,7 +69,7 @@ bool CMasternodeConfig::read(boost::filesystem::path path) {
             return false;
         }
 
-        add(alias, ip, privKey, txHash, outputIndex);
+        add(alias, ip, privKey, txHash, outputIndex, donationAddress, donationPercent);
     }
 
     streamConfig.close();
