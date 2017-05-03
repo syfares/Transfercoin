@@ -34,19 +34,17 @@ MOC_DIR = build
 UI_DIR = build
 
 # use: qmake "RELEASE=1"
-contains(RELEASE, 1) {
     # Mac: compile for maximum compatibility (10.5, 32-bit)
-    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk
-    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk
-    macx:QMAKE_LFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk
-    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk
+#    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
+ #   macx:QMAKE_CFLAGS += -mmacosx-version-min=10.7-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
+  #  macx:QMAKE_LFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
+  #  macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
 
 
     !windows:!macx {
         # Linux: static link
         # LIBS += -Wl,-Bstatic
     }
-}
 
 !win32 {
 # for extra security against potential buffer overflows: enable GCCs Stack Smashing Protection
@@ -530,7 +528,7 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/lib
+    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db@4/4.8.30/lib
     windows:BDB_LIB_PATH=C:/dev/coindeps32/bdb-4.8/lib
 }
 
@@ -539,17 +537,17 @@ isEmpty(BDB_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_INCLUDE_PATH) {
-    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/include
+    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db@4/4.8.30/include
     windows:BDB_INCLUDE_PATH=C:/dev/coindeps32/bdb-4.8/include
 }
 
 isEmpty(BOOST_LIB_PATH) {
-    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.59.0/lib
+    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.63.0/lib
     windows:BOOST_LIB_PATH=C:/dev/coindeps32/boost_1_57_0/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
-    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.59.0/include
+    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.63.0/include
     windows:BOOST_INCLUDE_PATH=C:/dev/coindeps32/boost_1_57_0/include
 }
 
@@ -566,22 +564,22 @@ isEmpty(MINIUPNPC_LIB_SUFFIX) {
 }
 
 isEmpty(MINIUPNPC_INCLUDE_PATH) {
-    macx:MINIUPNPC_INCLUDE_PATH=/usr/local/Cellar/miniupnpc/1.9.20151008/include
+    macx:MINIUPNPC_INCLUDE_PATH=/usr/local/Cellar/miniupnpc/2.O/include
     windows:MINIUPNPC_INCLUDE_PATH=C:/dev/coindeps32/miniupnpc-1.9
 }
 
 isEmpty(MINIUPNPC_LIB_PATH) {
-    macx:MINIUPNPC_LIB_PATH=/usr/local/Cellar/miniupnpc/1.9.20151008/lib
+    macx:MINIUPNPC_LIB_PATH=/usr/local/Cellar/miniupnpc/2.0/lib
     windows:MINIUPNPC_LIB_PATH=C:/dev/coindeps32/miniupnpc-1.9
 }
 
 isEmpty(OPENSSL_INCLUDE_PATH) {
-    macx:OPENSSL_INCLUDE_PATH = /usr/local/openssl-1.0.1p/include
+    macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl/1.0.2k/include
     windows:OPENSSL_INCLUDE_PATH=C:/dev/coindeps32/openssl-1.0.1p/include
 }
 
 isEmpty(OPENSSL_LIB_PATH) {
-    macx:OPENSSL_LIB_PATH = /usr/local/openssl-1.0.1p/lib
+    macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl/1.0.2k/lib
     windows:OPENSSL_LIB_PATH=C:/dev/coindeps32/openssl-1.0.1p/lib
 }
 
@@ -634,7 +632,7 @@ LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
 # -lgdi32 has to happen after -lcrypto (see  #681)
 windows:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32
 !windows: {
-    LIBS += -lgmp
+    #LIBS += -lgmp
 } else {
     INCLUDEPATH += $$SECP256K1_INCLUDE_PATH
     LIBS += $$join(SECP256K1_LIB_PATH,,-L,) -lsecp256k1
