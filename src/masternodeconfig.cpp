@@ -46,7 +46,6 @@ bool CMasternodeConfig::read(boost::filesystem::path path) {
             CBitcoinAddress address(donationAddress);
             if (!address.IsValid()) {
                 LogPrintf("Invalid TX address in masternode.conf line: %s\n", line.c_str());
-<<<<<<< HEAD
                 streamConfig.close();
                 return false;
             }
@@ -55,8 +54,6 @@ bool CMasternodeConfig::read(boost::filesystem::path path) {
         if(Params().NetworkID() == CChainParams::MAIN){
             if(CService(ip).GetPort() != 17170) {
                 LogPrintf("Invalid port detected in masternode.conf: %s (must be 17170 for mainnet)\n", line.c_str());
-=======
->>>>>>> origin/master
                 streamConfig.close();
                 return false;
             }
