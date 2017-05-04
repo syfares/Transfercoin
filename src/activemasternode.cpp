@@ -9,7 +9,7 @@
 #include "clientversion.h"
 
 //
-// Bootup the masternode, look for a 500 TX input and register on the network
+// Bootup the masternode, look for a 10000 TX input and register on the network
 //
 void CActiveMasternode::ManageStatus()
 {
@@ -114,10 +114,21 @@ void CActiveMasternode::ManageStatus()
             	LogPrintf("ActiveMasternode::Dseep() - Error upon calling SetKey: %s\n", errorMessage.c_str());
             	return;
             }
-
-            /* donations are not supported in transfer.conf */
-            CScript donationAddress = CScript();
-            int donationPercentage = 0;
+			CScript donationAddress = CScript();
+			int donationPercentage = 0;
+			CTransfercoinAddress address;
+			if (strDonnationAddress != "")
+			{
+			address.SetString(strDonnationAddress);
+			donationAddress.SetDestination(address.Get());
+			}
+        try {
+            donationPercentage = boost::lexical_cast<int>( strDonnationPercentage );
+        } catch( boost::bad_lexical_cast const& ) {
+            LogPrintf("ActiveMasternode::Register - Invalid Donation Percentage (Couldn't cast)\n");
+            return false;
+        }
+		LogPrintf("Check Donation adress %s and percentage %s\n", strDonnationAddress, strDonnationPercentage);
 
             if(!Register(vin, service, keyCollateralAddress, pubKeyCollateralAddress, keyMasternode, pubKeyMasternode, donationAddress, donationPercentage, errorMessage)) {
                 LogPrintf("CActiveMasternode::ManageStatus() - Error on Register: %s\n", errorMessage.c_str());
