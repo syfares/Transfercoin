@@ -21,7 +21,11 @@ AddEditAdrenalineNode::AddEditAdrenalineNode(QWidget *parent) :
 {
     ui->setupUi(this);
 
+<<<<<<< HEAD
     //Hide donation
+=======
+
+>>>>>>> origin/master
 
 
     //Labels
@@ -30,9 +34,14 @@ AddEditAdrenalineNode::AddEditAdrenalineNode(QWidget *parent) :
     ui->privkeyLineEdit->setPlaceholderText("Enter your Masternode private key");
     ui->txhashLineEdit->setPlaceholderText("Enter your 10000 TX TXID");
     ui->outputindexLineEdit->setPlaceholderText("Enter your transaction output index");
+<<<<<<< HEAD
     ui->donationaddressLineEdit->setPlaceholderText("Enter the donation address");
     ui->donationpercentageLineEdit->setPlaceholderText("Enter the % for donation");
 
+=======
+    ui->donationaddressLineEdit->setPlaceholderText("Enter a TX address for your MN donation");
+    ui->donationpercentageLineEdit->setPlaceholderText("Input the % for the donation");
+>>>>>>> origin/master
 }
 
 AddEditAdrenalineNode::~AddEditAdrenalineNode()

@@ -1050,6 +1050,10 @@ bool AppInit2(boost::thread_group& threadGroup)
             return InitError(_("You must specify a masternodeprivkey in the configuration. Please see documentation for help."));
         }
 
+		strDonnationAddress = GetArg("-donationAddress", "");
+
+		strDonnationPercentage = GetArg("-donationPercentage", "");
+
         activeMasternode.ManageStatus();
     }
 
