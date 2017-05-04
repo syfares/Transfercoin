@@ -127,7 +127,7 @@ void CActiveMasternode::ManageStatus()
             donationPercentage = boost::lexical_cast<int>( strDonnationPercentage );
         } catch( boost::bad_lexical_cast const& ) {
             LogPrintf("ActiveMasternode::Register - Invalid Donation Percentage (Couldn't cast) %s\n", strDonnationPercentage);
-            return false;
+            return;
         }
 		LogPrintf("Check Donation adress %s and percentage %s\n", strDonnationAddress, strDonnationPercentage);
 
