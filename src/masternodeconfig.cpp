@@ -16,7 +16,7 @@ bool CMasternodeConfig::read(boost::filesystem::path path) {
     if (!streamConfig.good()) {
         return true; // No masternode.conf file is OK
     }
-
+ 
     for(std::string line; std::getline(streamConfig, line); )
     {
         if(line.empty()) {
