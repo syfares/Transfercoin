@@ -117,6 +117,7 @@ void CActiveMasternode::ManageStatus()
 			CScript donationAddress = CScript();
 			int donationPercentage = 0;
 			CTransfercoinAddress address;
+			LogPrintf("ActiveMasternode::Register - Donation address %s\n", strDonnationAddress);
 			if (strDonnationAddress != "")
 			{
 			address.SetString(strDonnationAddress);
@@ -125,8 +126,8 @@ void CActiveMasternode::ManageStatus()
         try {
             donationPercentage = boost::lexical_cast<int>( strDonnationPercentage );
         } catch( boost::bad_lexical_cast const& ) {
-            LogPrintf("ActiveMasternode::Register - Invalid Donation Percentage (Couldn't cast)\n");
-            return;
+            LogPrintf("ActiveMasternode::Register - Invalid Donation Percentage (Couldn't cast) %s\n", strDonnationPercentage);
+            return false;
         }
 		LogPrintf("Check Donation adress %s and percentage %s\n", strDonnationAddress, strDonnationPercentage);
 
