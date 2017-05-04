@@ -21,9 +21,6 @@ AddEditAdrenalineNode::AddEditAdrenalineNode(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
-
-
     //Labels
     ui->aliasLineEdit->setPlaceholderText("Enter your Masternode alias");
     ui->addressLineEdit->setPlaceholderText("Enter your IP & port");
