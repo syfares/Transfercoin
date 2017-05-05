@@ -2893,6 +2893,7 @@ void Misbehaving(NodeId pnode, int howmuch)
 
 bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 {
+    LogPrintf("Local processblock");
     AssertLockHeld(cs_main);
 
     // Check for duplicate
@@ -3002,15 +3003,12 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
         }
         mapOrphanBlocksByPrev.erase(hashPrev);
     }
-
     if(!IsInitialBlockDownload()){
 
         CScript payee;
         CTxIn vin;
-
         // If we're in LiteMode disable darksend features without disabling masternodes
         if (!fLiteMode && !fImporting && !fReindex && pindexBest->nHeight > Checkpoints::GetTotalBlocksEstimate()){
-
             if(masternodePayments.GetBlockPayee(pindexBest->nHeight, payee, vin)){
                 //UPDATE MASTERNODE LAST PAID TIME
                 CMasternode* pmn = mnodeman.Find(vin);
@@ -3020,7 +3018,6 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 
                 LogPrintf("ProcessBlock() : Update Masternode Last Paid Time - %d\n", pindexBest->nHeight);
             }
-
             darkSendPool.CheckTimeout();
             darkSendPool.NewBlock();
             masternodePayments.ProcessBlock(GetHeight()+10);

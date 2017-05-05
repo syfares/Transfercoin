@@ -226,6 +226,7 @@ void CMasternodePayments::CleanPaymentList()
 
 bool CMasternodePayments::ProcessBlock(int nBlockHeight)
 {
+        LogPrintf("MN processblock");
     LOCK(cs_masternodepayments);
 
     if(nBlockHeight <= nLastBlockHeight) return false;
