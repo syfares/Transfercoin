@@ -654,6 +654,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
 
 Value submitblock(const Array& params, bool fHelp)
 {
+    LogPrintf("submitBlock\n");
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
             "submitblock <hex data> [optional-params-obj]\n"

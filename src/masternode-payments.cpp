@@ -226,7 +226,6 @@ void CMasternodePayments::CleanPaymentList()
 
 bool CMasternodePayments::ProcessBlock(int nBlockHeight)
 {
-        LogPrintf("MN processblock");
     LOCK(cs_masternodepayments);
 
     if(nBlockHeight <= nLastBlockHeight) return false;
@@ -234,7 +233,6 @@ bool CMasternodePayments::ProcessBlock(int nBlockHeight)
     CMasternodePaymentWinner newWinner;
     int nMinimumAge = mnodeman.CountEnabled();
     CScript payeeSource;
-
     uint256 hash;
     if(!GetBlockHash(hash, nBlockHeight-10)) return false;
     unsigned int nHash;

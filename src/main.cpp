@@ -2660,7 +2660,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                         foundPayee = true; //doesn't require a specific payee
                         foundPaymentAmount = true;
                         foundPaymentAndPayee = true;
-                        if(fDebug) { LogPrintf("CheckBlock() : Using non-specific masternode payments %d\n", pindexBest->nHeight+1); }
+                        LogPrintf("CheckBlock() : Using non-specific masternode payments %d\n", pindexBest->nHeight+1);
                     }
 
                     for (unsigned int i = 0; i < vtx[1].vout.size(); i++) {
@@ -2893,7 +2893,6 @@ void Misbehaving(NodeId pnode, int howmuch)
 
 bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 {
-    LogPrintf("Local processblock");
     AssertLockHeld(cs_main);
 
     // Check for duplicate
@@ -2908,7 +2907,6 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
     // Duplicate stake allowed only when there is orphan child block
     if (!fReindex && !fImporting && pblock->IsProofOfStake() && setStakeSeen.count(pblock->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash))
         return error("ProcessBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
-
 
 
 
@@ -2934,7 +2932,6 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
     // Preliminary checks
     if (!pblock->CheckBlock())
         return error("ProcessBlock() : CheckBlock FAILED");
-
     // If we don't already have its previous block, shunt it off to holding area until we get it
     if (!mapBlockIndex.count(pblock->hashPrevBlock))
     {
@@ -2974,7 +2971,6 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
         }
         return true;
     }
-
     // Store to disk
     if (!pblock->AcceptBlock())
         return error("ProcessBlock() : AcceptBlock FAILED");
@@ -3004,7 +3000,6 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
         mapOrphanBlocksByPrev.erase(hashPrev);
     }
     if(!IsInitialBlockDownload()){
-
         CScript payee;
         CTxIn vin;
         // If we're in LiteMode disable darksend features without disabling masternodes
