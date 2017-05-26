@@ -670,7 +670,7 @@ void OverviewPage::changeCurrencies(int index) {
     if (index == 1){
         currency = " EUR";
     }
-    LogPrintf("change to %s", currency.str());
+    LogPrintf("change to %s", currency.toStdString());
     updateDisplayUnit();
     
 }

@@ -1201,7 +1201,7 @@ void BitcoinGUI::lockWallet()
 
 void BitcoinGUI::openConf()
 {
-    string cmdLine = string("open '") +GetConfigFile().c_str() + string("'");
+    string cmdLine = string("open '") + GetConfigFile().string() + string("'");
     LogPrintf("Command : %s",cmdLine.c_str());
     std::system(cmdLine.c_str());
 }
