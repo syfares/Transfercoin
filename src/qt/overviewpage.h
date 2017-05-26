@@ -32,10 +32,12 @@ public:
     void setWalletModel(WalletModel *walletModel);
     void showOutOfSyncWarning(bool fShow);
     void updateDarksendProgress();
+    QString getUSDValue();
+    void changeCurrencies(int);
 
 public slots:
     void darkSendStatus();
-    void setBalance(const CAmount& balance, const CAmount& stake, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& anonymizedBalance, const CAmount& watchOnlyBalance, const CAmount& watchOnlyStake, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
+    void setBalance(const CAmount& balance, const CAmount& stake, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& anonymizedBalance, const CAmount& watchOnlyBalance, const CAmount& watchOnlyStake, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const QString USDValue);
 
 signals:
     void transactionClicked(const QModelIndex &index);
@@ -55,7 +57,10 @@ private:
     CAmount currentWatchUnconfBalance;
     CAmount currentWatchImmatureBalance;
     int nDisplayUnit;
+    QString currency;
+    QString sendRequest(QString url);
 
+    
     TxViewDelegate *txdelegate;
     TransactionFilterProxy *filter;
 

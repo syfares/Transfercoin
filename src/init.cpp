@@ -39,6 +39,9 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
+#include <QFont>
+#include <QApplication>
+#include <QFontDatabase>
 
 #ifndef WIN32
 #include <signal.h>
@@ -560,6 +563,11 @@ bool AppInit2(boost::thread_group& threadGroup)
         fprintf(stdout, "Transfer server starting\n"); 
 
     int64_t nStart;
+
+    //set font of application
+    QFontDatabase::addApplicationFont(":/fonts/Roboto-Regular.ttf");
+    QFont font( "Roboto-Regular" );
+    QGuiApplication::setFont( font );
 
     // ********************************************************* Step 5: Backup wallet and verify wallet database integrity
 #ifdef ENABLE_WALLET

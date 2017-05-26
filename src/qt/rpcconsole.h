@@ -22,13 +22,13 @@ QT_END_NAMESPACE
 class RPCConsole: public QWidget
 {
     Q_OBJECT
-
+    
 public:
     explicit RPCConsole(QWidget *parent = 0);
     ~RPCConsole();
-
+    
     void setClientModel(ClientModel *model);
-
+    
     enum MessageClass {
         MC_ERROR,
         MC_DEBUG,
@@ -36,12 +36,12 @@ public:
         CMD_REPLY,
         CMD_ERROR
     };
-
+    
 protected:
     virtual bool eventFilter(QObject* obj, QEvent *event);
     void keyPressEvent(QKeyEvent *);
-
-private slots:
+    
+    private slots:
     void on_lineEdit_returnPressed();
     void on_tabWidget_currentChanged(int index);
     /** open the debug.log from the current datadir */
@@ -69,8 +69,10 @@ private slots:
     void on_pasteButton_clicked();
     /** copy to clipboard */
     void on_copyButton_clicked();
-
-public slots:
+    /** clear history */
+    void on_clearButton_clicked();
+    
+    public slots:
     void clear();
     void message(int category, const QString &message, bool html = false);
     /** Set number of connections shown in the UI */
@@ -87,7 +89,7 @@ public slots:
     void peerSelected(const QItemSelection &selected, const QItemSelection &deselected);
     /** Handle updated peer information */
     void peerLayoutChanged();
-   /** Disconnect a selected node on the Peers tab */
+    /** Disconnect a selected node on the Peers tab */
     void disconnectSelectedNode();
     /** Ban a selected node on the Peers tab */
     void banSelectedNode(int bantime);
@@ -99,14 +101,14 @@ signals:
     // For RPC command executor
     void stopExecutor();
     void cmdRequest(const QString &command);
-
+    
 private:
     static QString FormatBytes(quint64 bytes);
     void startExecutor();
     void setTrafficGraphRange(int mins);
     /** show detailed information on ui about selected node */
     void updateNodeDetail(const CNodeCombinedStats *stats);
-
+    
     enum ColumnWidths
     {
         ADDRESS_COLUMN_WIDTH = 200,
@@ -114,9 +116,9 @@ private:
         PING_COLUMN_WIDTH = 80,
         BANSUBNET_COLUMN_WIDTH = 200,
         BANTIME_COLUMN_WIDTH = 250
-
+        
     };
-
+    
     Ui::RPCConsole *ui;
     ClientModel *clientModel;
     QStringList history;
@@ -124,7 +126,7 @@ private:
     NodeId cachedNodeid;
     QMenu *peersTableContextMenu;
     QMenu *banTableContextMenu;
-
+    
 };
 
 #endif // RPCCONSOLE_H

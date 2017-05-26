@@ -225,7 +225,7 @@ void MasternodeManager::updateNodeList()
 	nTimeListUpdated = GetTime();
     fFilterUpdated = false;
 	if (f1.isFinished())
-		f1 = QtConcurrent::run(this,&MasternodeManager::updateListConc);   
+		f1 = QtConcurrent::run(this,&MasternodeManager::updateListConc);
 	
 }
 

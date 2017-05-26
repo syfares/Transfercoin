@@ -830,8 +830,10 @@ string tradingDialog::encryptDecrypt(string toEncrypt, string password) {
 void tradingDialog::on_SaveKeys_clicked()
 {
     bool fSuccess = true;
-    boost::filesystem::path pathConfigFile = GetDataDir() / "APIcache.txt";
-    boost::filesystem::ofstream stream (pathConfigFile.string(), ios::out | ios::trunc);
+    boost::filesystem::path pathConfigAPIFile = GetDataDir() / "APIKey.txt";
+    boost::filesystem::path pathConfigSecretFile = GetDataDir() / "SecretKey.txt";
+    boost::filesystem::ofstream streamAPI (pathConfigAPIFile.string(), ios::out | ios::trunc);
+    boost::filesystem::ofstream streamSecret (pathConfigSecretFile.string(), ios::out | ios::trunc);
 
     // Qstring to string
     string password = ui->PasswordInput->text().toUtf8().constData();
@@ -839,7 +841,8 @@ void tradingDialog::on_SaveKeys_clicked()
     if (password.length() <= 6){
         QMessageBox::information(this,"Error !","Your password is too short !");
         fSuccess = false;
-        stream.close();
+        streamAPI.close();
+        streamSecret.close();
     }
 
     // qstrings to utf8, add to byteArray and convert to const char for stream
@@ -848,13 +851,18 @@ void tradingDialog::on_SaveKeys_clicked()
     string ESecret = "";
     string EKey = "";
 
-    if (stream.is_open() && fSuccess)
+    if (streamAPI.is_open() && streamSecret.is_open()  && fSuccess)
     {
         ESecret = encryptDecrypt(Secret, password);
         EKey = encryptDecrypt(Key, password);
-        stream << ESecret << '\n';
-        stream << EKey;
-        stream.close();
+        LogPrintf("Secret : %s\n", Secret);
+        LogPrintf("Key : %d\n", Key);
+        LogPrintf("ESecret : %s\n",ESecret);
+        LogPrintf("EKey : %d\n", EKey);
+        streamSecret << ESecret ;
+        streamAPI << EKey ;
+        streamAPI.close();
+        streamSecret.close();
     }
     if (fSuccess) {
         bool Save = true;
@@ -866,8 +874,10 @@ void tradingDialog::on_SaveKeys_clicked()
 void tradingDialog::on_LoadKeys_clicked()
 {
     bool fSuccess = true;
-    boost::filesystem::path pathConfigFile = GetDataDir() / "APIcache.txt";
-    boost::filesystem::ifstream stream (pathConfigFile.string());
+    boost::filesystem::path pathConfigAPIFile = GetDataDir() / "APIKey.txt";
+    boost::filesystem::path pathConfigSecretFile = GetDataDir() / "SecretKey.txt";
+    boost::filesystem::ifstream streamAPI (pathConfigAPIFile.string());
+    boost::filesystem::ifstream streamSecret (pathConfigSecretFile.string());
 
     // Qstring to string
     string password = ui->PasswordInput->text().toUtf8().constData();
@@ -875,28 +885,51 @@ void tradingDialog::on_LoadKeys_clicked()
     if (password.length() <= 6){
         QMessageBox::information(this,"Error !","Your password is too short !");
         fSuccess = false;
-        stream.close();
+        streamAPI.close();
+        streamSecret.close();
     }
 
     QString DSecret = "";
     QString DKey = "";
 
-    if (stream.is_open() && fSuccess)
+    if (streamAPI.is_open() && fSuccess)
     {
-        int i =0;
-        for ( std::string line; std::getline(stream,line); )
+        string key="";
+        int i=0;
+        for ( std::string line; std::getline(streamAPI,line); )
         {
-            if (i == 0 ){
-                DSecret = QString::fromUtf8(encryptDecrypt(line, password).c_str());
-                ui->SecretKeyInput->setText(DSecret);
-            } else if (i == 1){
-                DKey = QString::fromUtf8(encryptDecrypt(line, password).c_str());
-                ui->ApiKeyInput->setText(DKey);
-            }
+            if (i>0)
+                key+='\n';
+            key+=line;
             i++;
         }
-        stream.close();
+        if (streamSecret.is_open() && fSuccess)
+        {
+            i=0;
+            string secret="";
+            for ( std::string line; std::getline(streamSecret,line); )
+            {
+                if (i>0)
+                    key+='\n';
+                secret+=line;
+                i++;
+            }
+        
+        LogPrintf("secret : %s\n", secret);
+        LogPrintf("key : %s\n", key);
+
+
+        DSecret = QString::fromUtf8(encryptDecrypt(secret, password).c_str());
+        ui->SecretKeyInput->setText(DSecret);
+        DKey = QString::fromUtf8(encryptDecrypt(key, password).c_str());
+        ui->ApiKeyInput->setText(DKey);
+        streamAPI.close();
+        streamSecret.close();
+        }
     }
+    LogPrintf("Dkey : %s\n", DKey.toStdString());
+    LogPrintf("DSecret : %d\n", DSecret.toStdString());
+
     if (fSuccess) {
         bool Save = false;
         bool Load = true;

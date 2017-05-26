@@ -488,9 +488,9 @@ bool CheckStake(CBlock* pblock, CWallet& wallet)
         return error("CheckStake() : proof-of-stake checking failed");
 
     //// debug print
-    LogPrint("coinstake", "CheckStake() : new proof-of-stake block found  \n  hash: %s \nproofhash: %s  \ntarget: %s\n", hashBlock.GetHex(), proofHash.GetHex(), hashTarget.GetHex());
-    LogPrint("coinstake", "%s\n", pblock->ToString());
-    LogPrint("coinstake", "out %s\n", FormatMoney(pblock->vtx[1].GetValueOut()));
+    LogPrintf("coinstake", "CheckStake() : new proof-of-stake block found  \n  hash: %s \nproofhash: %s  \ntarget: %s\n", hashBlock.GetHex(), proofHash.GetHex(), hashTarget.GetHex());
+    LogPrintf("coinstake", "%s\n", pblock->ToString());
+    LogPrintf("coinstake", "out %s\n", FormatMoney(pblock->vtx[1].GetValueOut()));
 
     // Found a solution
     {

@@ -11,6 +11,7 @@
 #include "transactionfilterproxy.h"
 #include "guiutil.h"
 #include "guiconstants.h"
+#include "tradingdialog.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
@@ -18,6 +19,17 @@
 #include <QScroller>
 #include <QSettings>
 #include <QTimer>
+#include <QJsonValue>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QUrl>
+#include <QUrlQuery>
+#include <sstream>
+#include <string>
 
 #define DECORATION_SIZE 64
 #define ICON_OFFSET 16
@@ -173,6 +185,12 @@ OverviewPage::OverviewPage(QWidget *parent) :
         ui->labelImmature->setStyleSheet(whiteLabelQSS);
         ui->labelTotal->setStyleSheet(whiteLabelQSS);
     }
+    
+    //initialize the combobox
+        ui->labelTotalUSD->addItem("Total in USD");
+        ui->labelTotalUSD->addItem("Total in EUR");
+        connect(ui->labelTotalUSD, SIGNAL(currentIndexChanged(int)), this, SLOT(changeCurrencies(int)));
+        currency = "USD";
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -187,7 +205,7 @@ OverviewPage::~OverviewPage()
     delete ui;
 }
 
-void OverviewPage::setBalance(const CAmount& balance, const CAmount& stake, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& anonymizedBalance, const CAmount& watchOnlyBalance, const CAmount& watchOnlyStake, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance)
+void OverviewPage::setBalance(const CAmount& balance, const CAmount& stake, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& anonymizedBalance, const CAmount& watchOnlyBalance, const CAmount& watchOnlyStake, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const QString USDValue)
 {
     currentBalance = balance;
     currentStake = stake;
@@ -198,17 +216,22 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& stake, cons
     currentWatchOnlyStake = watchOnlyStake;
     currentWatchUnconfBalance = watchUnconfBalance;
     currentWatchImmatureBalance = watchImmatureBalance;
+    double usd  = std::stod(USDValue.toStdString());
+    double totusd  = usd * ( balance + stake + unconfirmedBalance + immatureBalance )/100000000;
     ui->labelBalance->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, balance));
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, stake));
     ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, unconfirmedBalance));
     ui->labelImmature->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, immatureBalance));
     ui->labelAnonymized->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, anonymizedBalance));
     ui->labelTotal->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, balance + stake + unconfirmedBalance + immatureBalance));
+    ui->labelTotalValUSD->setText(QString::number(totusd)+ currency);
+    ui->labelValUSD->setText(USDValue + currency);
     ui->labelWatchAvailable->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchOnlyBalance));
     ui->labelWatchStake->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchOnlyStake));
     ui->labelWatchPending->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchUnconfBalance));
     ui->labelWatchImmature->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchImmatureBalance));
     ui->labelWatchTotal->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchOnlyBalance + watchOnlyStake + watchUnconfBalance + watchImmatureBalance));
+    ui->labelWatchTotalUSD->setText(USDValue+ currency);
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
@@ -219,7 +242,7 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& stake, cons
     ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature);
     ui->labelImmatureText->setVisible(showImmature || showWatchOnlyImmature);
     ui->labelWatchImmature->setVisible(showWatchOnlyImmature); // show watch-only immature balance
-
+    ui->labelWatchTotalUSD->setVisible(showWatchOnlyImmature);
     updateDarksendProgress();
 
     static int cachedTxLocks = 0;
@@ -236,6 +259,7 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
     ui->labelSpendable->setVisible(showWatchOnly);      // show spendable label (only when watch-only is active)
     ui->labelWatchonly->setVisible(showWatchOnly);      // show watch-only label
     ui->lineWatchBalance->setVisible(showWatchOnly);    // show watch-only balance separator line
+    ui->lineWatchUSDBalance->setVisible(showWatchOnly);
     ui->labelWatchStake->setVisible(showWatchOnly);    // show watch-only balance separator line
     ui->labelWatchAvailable->setVisible(showWatchOnly); // show watch-only available balance
     ui->labelWatchPending->setVisible(showWatchOnly);   // show watch-only pending balance
@@ -283,8 +307,8 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
         // Keep up to date with wallet
         setBalance(model->getBalance(), model->getStake(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getAnonymizedBalance(),
-             model->getWatchBalance(), model->getWatchStake(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance());
-        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
+             model->getWatchBalance(), model->getWatchStake(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(), getUSDValue());
+        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, QString)), this, SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, QString)));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
@@ -307,7 +331,7 @@ void OverviewPage::updateDisplayUnit()
         nDisplayUnit = walletModel->getOptionsModel()->getDisplayUnit();
         if(currentBalance != -1)
             setBalance(currentBalance, currentStake, currentUnconfirmedBalance, currentImmatureBalance, currentAnonymizedBalance,
-                currentWatchOnlyBalance, currentWatchOnlyStake, currentWatchUnconfBalance, currentWatchImmatureBalance);
+                currentWatchOnlyBalance, currentWatchOnlyStake, currentWatchUnconfBalance, currentWatchImmatureBalance, getUSDValue());
 
         // Update txdelegate->unit with the current unit
         txdelegate->unit = nDisplayUnit;
@@ -567,6 +591,87 @@ void OverviewPage::toggleDarksend(){
             dlg.setModel(walletModel);
             dlg.exec();
         }
-
     }
 }
+
+QString OverviewPage::getUSDValue(){
+        
+    QString URL = "https://api.coinmarketcap.com/v1/ticker/transfercoin/";
+    QString Response = sendRequest(URL);
+    QByteArray json_bytes = Response.toLocal8Bit();
+    auto json_doc=QJsonDocument::fromJson(json_bytes);
+    
+    if(json_doc.isNull()){
+        LogPrintf("Failed to create JSON doc.");
+    }
+    if(!json_doc.isArray()){
+        LogPrintf("JSON doc is not an array.");
+    }
+    
+    QJsonArray json_array = json_doc.array();
+
+    if(json_array.isEmpty()){
+        LogPrintf("JSON object is empty.");
+    }
+
+    QJsonObject json_obj=json_array.first().toObject();
+    
+    if(json_obj.isEmpty()){
+        LogPrintf("JSON object is empty.");
+    }
+    
+    QJsonValue val = json_obj.value("price_usd");
+    QString result = val.toString();
+
+    return result;
+    }
+
+
+QString OverviewPage::sendRequest(QString url){
+    
+    QString Response = "";
+    
+    // create custom temporary event loop on stack
+    QEventLoop eventLoop;
+    
+    // "quit()" the event-loop, when the network request "finished()"
+    QNetworkAccessManager mgr;
+    QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
+    
+    // the HTTP request
+    QNetworkRequest req = QNetworkRequest(QUrl(url));
+    
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    
+    QNetworkReply *reply = mgr.get(req);
+    eventLoop.exec(); // blocks stack until "finished()" has been called
+    
+    if (reply->error() == QNetworkReply::NoError) {
+        //success
+        Response = reply->readAll();
+        delete reply;
+    }
+    else{
+        //failure
+        qDebug() << "Failure" <<reply->errorString();
+        Response = "Error";
+        //QMessageBox::information(this,"Error",reply->errorString());
+        delete reply;
+    }
+    
+    return Response;
+}
+
+void OverviewPage::changeCurrencies(int index) {
+    if (index == 0){
+        currency = " USD";
+    }
+    if (index == 1){
+        currency = " EUR";
+    }
+    LogPrintf("change to %s", currency.str());
+    updateDisplayUnit();
+    
+}
+
