@@ -33,6 +33,7 @@ public:
     void showOutOfSyncWarning(bool fShow);
     void updateDarksendProgress();
     QString getUSDValue();
+    void changeCurrencies(int);
 
 public slots:
     void darkSendStatus();
@@ -56,6 +57,7 @@ private:
     CAmount currentWatchUnconfBalance;
     CAmount currentWatchImmatureBalance;
     int nDisplayUnit;
+    QString currency;
     QString sendRequest(QString url);
 
     

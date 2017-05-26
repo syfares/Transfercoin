@@ -185,6 +185,12 @@ OverviewPage::OverviewPage(QWidget *parent) :
         ui->labelImmature->setStyleSheet(whiteLabelQSS);
         ui->labelTotal->setStyleSheet(whiteLabelQSS);
     }
+    
+    //initialize the combobox
+        ui->labelTotalUSD->addItem("Total in USD");
+        ui->labelTotalUSD->addItem("Total in EUR");
+        connect(ui->labelTotalUSD, SIGNAL(currentIndexChanged(int)), this, SLOT(changeCurrencies(int)));
+        currency = "USD";
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -210,19 +216,22 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& stake, cons
     currentWatchOnlyStake = watchOnlyStake;
     currentWatchUnconfBalance = watchUnconfBalance;
     currentWatchImmatureBalance = watchImmatureBalance;
+    double usd  = std::stod(USDValue.toStdString());
+    double totusd  = usd * ( balance + stake + unconfirmedBalance + immatureBalance )/100000000;
     ui->labelBalance->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, balance));
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, stake));
     ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, unconfirmedBalance));
     ui->labelImmature->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, immatureBalance));
     ui->labelAnonymized->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, anonymizedBalance));
     ui->labelTotal->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, balance + stake + unconfirmedBalance + immatureBalance));
-    ui->labelTotalValUSD->setText(USDValue+ " USD");
+    ui->labelTotalValUSD->setText(QString::number(totusd)+ currency);
+    ui->labelValUSD->setText(USDValue + currency);
     ui->labelWatchAvailable->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchOnlyBalance));
     ui->labelWatchStake->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchOnlyStake));
     ui->labelWatchPending->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchUnconfBalance));
     ui->labelWatchImmature->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchImmatureBalance));
     ui->labelWatchTotal->setText(BitcoinUnits::floorWithUnit(nDisplayUnit, watchOnlyBalance + watchOnlyStake + watchUnconfBalance + watchImmatureBalance));
-    ui->labelWatchTotalUSD->setText(USDValue+ " USD");
+    ui->labelWatchTotalUSD->setText(USDValue+ currency);
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
@@ -250,6 +259,7 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
     ui->labelSpendable->setVisible(showWatchOnly);      // show spendable label (only when watch-only is active)
     ui->labelWatchonly->setVisible(showWatchOnly);      // show watch-only label
     ui->lineWatchBalance->setVisible(showWatchOnly);    // show watch-only balance separator line
+    ui->lineWatchUSDBalance->setVisible(showWatchOnly);
     ui->labelWatchStake->setVisible(showWatchOnly);    // show watch-only balance separator line
     ui->labelWatchAvailable->setVisible(showWatchOnly); // show watch-only available balance
     ui->labelWatchPending->setVisible(showWatchOnly);   // show watch-only pending balance
@@ -298,7 +308,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         // Keep up to date with wallet
         setBalance(model->getBalance(), model->getStake(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getAnonymizedBalance(),
              model->getWatchBalance(), model->getWatchStake(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(), getUSDValue());
-        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, QString)));
+        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, QString)), this, SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, QString)));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
@@ -651,5 +661,17 @@ QString OverviewPage::sendRequest(QString url){
     }
     
     return Response;
+}
+
+void OverviewPage::changeCurrencies(int index) {
+    if (index == 0){
+        currency = " USD";
+    }
+    if (index == 1){
+        currency = " EUR";
+    }
+    LogPrintf("change to %s", currency.str());
+    updateDisplayUnit();
+    
 }
 
